@@ -49,8 +49,7 @@ def fetch_issues_containing_keyword():
 
 
 print("script is working")
-IS_WORKING = True
-while IS_WORKING:
+while True:
     query = input("What do you want to fetch: \n"
                   "fetch issues between dates 'bd'\n"
                   "fetch issues that contain a keyword 'ck'\n"
@@ -64,12 +63,12 @@ while IS_WORKING:
             issues = fetch_issues_containing_keyword()
             print(issues)
         case "q":
-            IS_WORKING = False
+            break
         case _:
             print(f"You entered {query} its not correct!")
             continue
     desire_to_continue = input("Do you want to continue? 'yYnN': ")
     if desire_to_continue.lower() == "n":
-        IS_WORKING = False
+        break
 
 print("It's end!")
