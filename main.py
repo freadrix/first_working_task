@@ -6,15 +6,16 @@ params = {"status": "all",
           "per_page": 100}
 
 
-def fetch_issues_between_dates():  # here must be two parameters first_date, second_date
+def fetch_issues_between_dates():
     params["status"] = "Closed"
     date_since = input("Type date since you want to get issues in format 'YYYY-MM-DD' :")
-    date_before = input("Type date before you want to get issues in format 'YYYY-MM-DD' :")
+    date_before = input("Type date before you want to get issues in format 'YYYY-MM-DD/tT' :")
     closed_issues_between = fetch_issues_since(date_since)
-    closed_before = fetch_issues_since(date_before)
-    for issue in closed_before:
-        if issue in closed_issues_between:
-            closed_issues_between.remove(issue)
+    if date_before.upper() != "T":
+        closed_before = fetch_issues_since(date_before)
+        for issue in closed_before:
+            if issue in closed_issues_between:
+                closed_issues_between.remove(issue)
     return closed_issues_between
 
 
@@ -31,22 +32,38 @@ def fetch_issues_since(date):
     return closed_issues_since
 
 
-def fetch_unretirement_issues():
-    title_keyword = "unretirement"
-    unretirement_issues = []
+def fetch_issues_containing_keyword():
+    title_keyword = input("Type your keyword (probably you want 'unretirement'): ")
+    issues_containing_keyword = []
     response = requests.get(url=config.API_RELENG_ISSUES_ENDPOINT, headers=headers, params=params)
     pages_count = response.json()["pagination"]["pages"]
-    issues = response.json()["issues"]
-    unretirement_issues += [issue for issue in issues if title_keyword in issue["title"].lower()]
+    issues_on_page = response.json()["issues"]
+    issues_containing_keyword += [issue for issue in issues_on_page if title_keyword in issue["title"].lower()]
     if pages_count >= 2:
         for page in range(2, pages_count + 1):
             params["page"] = page
             response = requests.get(url=config.API_RELENG_ISSUES_ENDPOINT, headers=headers, params=params)
-            issues = response.json()["issues"]
-            unretirement_issues += [issue for issue in issues if title_keyword in issue["title"].lower()]
-    return unretirement_issues
+            issues_on_page = response.json()["issues"]
+            issues_containing_keyword += [issue for issue in issues_on_page if title_keyword in issue["title"].lower()]
+    return issues_containing_keyword
 
 
-closed_issues = fetch_issues_between_dates()
-print(closed_issues)
-# unretirement_issues = fetch_unretirement_issues()
+print("script is working")
+IS_WORKING = True
+while IS_WORKING:
+    query = input("What do you want to fetch: \n"
+                  "fetch issues between dates 'bd'\n"
+                  "fetch issues that contain a keyword 'ck'\n"
+                  "for exiting write 'q'\n"
+                  "your choose: ")
+    match query:
+        case "bd":
+            issues = fetch_issues_between_dates()
+        case "ck":
+            issues = fetch_issues_containing_keyword()
+        case "q":
+            IS_WORKING = False
+        case _:
+            print(f"You entered {query} its not correct!")
+
+print("It's end!")
