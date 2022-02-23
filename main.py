@@ -59,11 +59,17 @@ while IS_WORKING:
     match query:
         case "bd":
             issues = fetch_issues_between_dates()
+            print(issues)
         case "ck":
             issues = fetch_issues_containing_keyword()
+            print(issues)
         case "q":
             IS_WORKING = False
         case _:
             print(f"You entered {query} its not correct!")
+            continue
+    desire_to_continue = input("Do you want to continue? 'yYnN': ")
+    if desire_to_continue.lower() == "n":
+        IS_WORKING = False
 
 print("It's end!")
