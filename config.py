@@ -8,7 +8,5 @@ DEFAULT_SINCE_DATE = month_before_today_date.strftime("%Y-%m-%d")           # da
 DEFAULT_UNTIL_DATE = today_date.strftime("%Y-%m-%d")
 DEFAULT_KEYWORD = "unretirement"
 API_RELENG_ISSUES_ENDPOINT = "https://pagure.io/api/0/releng/issues"
-API_KEY = "<your api key>"                 # your API KEY
+API_KEY = "XHJFGZL0C26V6FS9LK50VF8M6H2WIVSNYSCYZX555S8FVN8ODQ3RRXU1FNHEQ4S4"                 # your API KEY
 HEADERS = {"Authorization": f"token {API_KEY}"}
-PARAMS = {"status": "all",
-          "per_page": 100}

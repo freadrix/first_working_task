@@ -2,16 +2,18 @@ FROM fedora:latest
 
 WORKDIR /home
 
-COPY main.py ./
+COPY issue_fetcher ./
 
 COPY config.py ./
 
 COPY requirements.txt ./
 
+COPY setup.py ./
+
 RUN dnf -y install python
 
 RUN dnf -y install pip
 
-RUN pip install -r requirements.txt
+RUN pip install --editable .
 
-CMD ["python", "./main.py"]
+CMD ["issue_fetcher"]
