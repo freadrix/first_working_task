@@ -9,4 +9,5 @@ DEFAULT_UNTIL_DATE = today_date.strftime("%Y-%m-%d")
 DEFAULT_KEYWORD = "unretirement"
 API_RELENG_ISSUES_ENDPOINT = "https://pagure.io/api/0/releng/issues"
 API_KEY = "XHJFGZL0C26V6FS9LK50VF8M6H2WIVSNYSCYZX555S8FVN8ODQ3RRXU1FNHEQ4S4"                 # your API KEY
-HEADERS = {"Authorization": f"token {API_KEY}"}
+RELENG_HEADERS = {"Authorization": f"token {API_KEY}"}
+BUGZILLA_URL = "bugzilla.stage.redhat.com"

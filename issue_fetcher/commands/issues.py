@@ -1,6 +1,6 @@
 import click
 
-from issue_fetcher.service import fetcher
+from issue_fetcher.service import fetcher_issues
 
 
 class Context:
@@ -8,7 +8,7 @@ class Context:
         self.keyword = keyword
         self.date_since = date_since
         self.date_until = date_until
-        self.fetcher = fetcher.Fetcher(date_since=date_since, date_until=date_until, keyword=keyword)
+        self.fetcher = fetcher_issues.Fetcher(date_since=date_since, date_until=date_until, keyword=keyword)
 
 
 @click.group()

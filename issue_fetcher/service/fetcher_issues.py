@@ -1,6 +1,6 @@
 import requests
 
-from config import DEFAULT_UNTIL_DATE, DEFAULT_SINCE_DATE, DEFAULT_KEYWORD, HEADERS, API_RELENG_ISSUES_ENDPOINT
+from config import DEFAULT_UNTIL_DATE, DEFAULT_SINCE_DATE, DEFAULT_KEYWORD, RELENG_HEADERS, API_RELENG_ISSUES_ENDPOINT
 
 
 class Fetcher:
@@ -23,26 +23,26 @@ class Fetcher:
 
     def issues_since(self, date):
         self.params["since"] = date
-        response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=HEADERS, params=self.params)
+        response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
         closed_issues_since = response.json()["issues"]
         pages_count = response.json()["pagination"]["pages"]
         if pages_count > 1:
             for page in range(2, pages_count + 1):
                 self.params["page"] = page
-                response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=HEADERS, params=self.params)
+                response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
                 closed_issues_since += response.json()["issues"]
         return closed_issues_since
 
     def containing_keyword(self):
         issues_containing_keyword = []
-        response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=HEADERS, params=self.params)
+        response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
         pages_count = response.json()["pagination"]["pages"]
         issues_on_page = response.json()["issues"]
         issues_containing_keyword += [issue for issue in issues_on_page if self.keyword in issue["title"].lower()]
         if pages_count >= 2:
             for page in range(2, pages_count + 1):
                 self.params["page"] = page
-                response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=HEADERS, params=self.params)
+                response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
                 issues_on_page = response.json()["issues"]
                 issues_containing_keyword += [issue for issue in issues_on_page if
                                               self.keyword in issue["title"].lower()]
