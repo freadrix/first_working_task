@@ -8,12 +8,13 @@ def fetch_bugs():
     bzapi.bug_autorefresh = True
     query = bzapi.build_query(
         product="Fedora",
-        limit=TICKET_LIMIT                      # automatic limit cannot change it
+        limit=TICKET_LIMIT,                      # automatic limit cannot change it
+        component="Package Review"
     )
     bugs = bzapi.query(query)
 
-    for i in range(1, 10):                      # Cycle for getting 200 bugs instead of 20
-        query['offset'] = i * TICKET_LIMIT
-        bugs += bzapi.query(query)
+    # for i in range(1, 10):                      # Cycle for getting 200 bugs instead of 20
+    #     query['offset'] = i * TICKET_LIMIT
+    #     bugs += bzapi.query(query)
 
     return bugs
