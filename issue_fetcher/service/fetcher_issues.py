@@ -34,6 +34,10 @@ class Fetcher:
         return closed_issues_since
 
     def containing_keyword(self):
+        # <<<<<<<< 2. Task version
+        self.params["status"] = "Open"
+        print(self.keyword)
+        # >>>>>>>> Old version
         issues_containing_keyword = []
         response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
         pages_count = response.json()["pagination"]["pages"]
