@@ -1,3 +1,4 @@
+import requests
 from issue_fetcher.service.fetcher_issues import Fetcher
 import git
 from urllib.request import urlopen
@@ -20,20 +21,37 @@ class Issue:
     def package_name_analyze(self):
         """ Method will analyze a package_name write down correct names and return bool value of name correctness """
         # TODO improve this method
-        word_list = self.package_name.split()
-        count_of_words = len(word_list)
-        if count_of_words == 1:
+        # word_list = self.package_name.split()
+        # count_of_words = len(word_list)
+        # if count_of_words == 1:
+        #     if self.package_name.startswith("rpms/"):
+        #         return True
+        #     else:
+        #         self.package_name = f"rpms/{self.package_name}"
+        #         return True
+        # else:
+        #     return False
+        # Second version
+        package_versions = ["rpms/", "flatpaks/", "modules/"]
+        package_name_word_list = self.package_name.split()
+        for word in package_name_word_list:
             if self.package_name.startswith("rpms/"):
-                return True
+                print("True")
             else:
                 self.package_name = f"rpms/{self.package_name}"
-                return True
-        else:
-            return False
+                print("True")
 
     def get_git_url(self):
         """ Method will fill git_url attr """
         self.git_url = "https://src.fedoraproject.org/" + self.package_name + ".git"
+        return self.is_package_url_exist()
+
+    def is_package_url_exist(self):
+        response = requests.get(self.git_url)
+        if response.status_code == 200:
+            return True
+        else:
+            return False
 
     def get_last_commit_date_using_scraping(self):
         """ Method will fill last_commit_date attr """
@@ -72,8 +90,8 @@ class Issues:
 
     def __init__(self):
         self.issues = []
-        self.get_unretire_issues()
-        self.get_stalled_epel_package_issues()
+        # self.get_unretire_issues()
+        # self.get_stalled_epel_package_issues()
 
     def get_unretire_issues(self):
         """ Method fetch issues that contain the unretire keyword in title """
@@ -82,8 +100,8 @@ class Issues:
         for issue in issues_contain_unretire_keyword_in_title:
             package_name = issue["title"].split("Unretire ")[1]
             user_name = issue["user"]["name"]
-            issue = Issue(package_name=package_name, user_name=user_name, is_packager=False)
-            self.issues.append(issue)
+            issue_obj = Issue(package_name=package_name, user_name=user_name, is_packager=False)
+            self.issues.append(issue_obj)
 
     def get_stalled_epel_package_issues(self):
         """ Method fetch issues that contain the stalled epel package phrase in title """
@@ -92,20 +110,12 @@ class Issues:
         for issue in issues_contain_stalled_epel_package_string_in_title:
             package_name = issue["title"].split(": ")[1]
             user_name = issue["user"]["name"]
-            issue = Issue(package_name=package_name, user_name=user_name, is_packager=False)
-            self.issues.append(issue)
+            issue_obj = Issue(package_name=package_name, user_name=user_name, is_packager=False)
+            self.issues.append(issue_obj)
 
     def analyze_name_issues(self):
         """ Method hard analyze each issue_name of issue in the list """
         self.issues = [issue for issue in self.issues if issue.package_name_analyze()]
-        # correct_issues = []
-        # for issue in self.issues:
-        #     if issue.package_name_analyze():
-        #         correct_issues.append(issue)
-        #     # TODO ask wht dont work correctly
-        #     # if not issue.package_name_analyze():
-        #     #     self.issues.pop(self.issues.index(issue))
-        # self.issues = correct_issues
 
     def fill_last_commit_date_of_issues(self):
         """ Method fill last_commit_date attr in all issues """
@@ -129,15 +139,18 @@ class Issues:
 
 def main():
     issues = Issues()
+    issues.get_unretire_issues()
+    issues.get_stalled_epel_package_issues()
     issues.write_out_issues()
     issues.analyze_name_issues()
     issues.fill_last_commit_date_of_issues()
     issues.write_out_issues()
-    # git.
     # TODO make kerberos authentication             ✓
     # TODO analyze package name                     ✓
     # TODO found last commit date                   ✓
     # TODO found packager group at the user group
+    # TODO create a test environment
+    # TODO create a good text analyze
 
 
 if __name__ == "__main__":
