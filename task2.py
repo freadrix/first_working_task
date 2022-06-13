@@ -11,16 +11,18 @@ import time  # For compare two fetching methods
 class Issue:
     """ A class used to contain info about single issue and work with this """
 
-    def __init__(self, package_name, user_name, is_packager=False):
-        self.package_name = package_name
+    def __init__(self, issue_name, user_name):
+        self.issue_name = issue_name
+        self.package_name = None
         self.user_name = user_name
-        self.is_packager = is_packager
+        self.is_packager = None
         self.git_url = None
         self.last_commit_date = None
 
     def package_name_analyze(self):
         """ Method will analyze a package_name write down correct names and return bool value of name correctness """
-        # TODO improve this method
+        self.skip_unnecessary_symbols()
+        # First version
         # word_list = self.package_name.split()
         # count_of_words = len(word_list)
         # if count_of_words == 1:
@@ -32,14 +34,19 @@ class Issue:
         # else:
         #     return False
         # Second version
-        package_versions = ["rpms/", "flatpaks/", "modules/"]
-        package_name_word_list = self.package_name.split()
-        for word in package_name_word_list:
-            if self.package_name.startswith("rpms/"):
-                print("True")
-            else:
-                self.package_name = f"rpms/{self.package_name}"
-                print("True")
+        # package_versions = ["rpms/", "flatpaks/", "modules/"]
+        # package_name_word_list = self.package_name.split()
+        # for word in package_name_word_list:
+        #     if self.package_name.startswith("rpms/"):
+        #         print("True")
+        #     else:
+        #         self.package_name = f"rpms/{self.package_name}"
+        #         print("True")
+
+    def skip_unnecessary_symbols(self):
+        skips = [".", ", ", ":", ";", "'", '"']
+        for ch in skips:
+            self.issue_name = self.issue_name.replace(ch, "")
 
     def get_git_url(self):
         """ Method will fill git_url attr """
@@ -90,17 +97,15 @@ class Issues:
 
     def __init__(self):
         self.issues = []
-        # self.get_unretire_issues()
-        # self.get_stalled_epel_package_issues()
 
     def get_unretire_issues(self):
         """ Method fetch issues that contain the unretire keyword in title """
-        issue_fetcher = Fetcher()
+        issue_fetcher = Fetcher(keyword="unretire")
         issues_contain_unretire_keyword_in_title = issue_fetcher.containing_keyword()
         for issue in issues_contain_unretire_keyword_in_title:
-            package_name = issue["title"].split("Unretire ")[1]
+            issue_name = issue["title"].lower()  # .split("Unretire ")[1]
             user_name = issue["user"]["name"]
-            issue_obj = Issue(package_name=package_name, user_name=user_name, is_packager=False)
+            issue_obj = Issue(issue_name=issue_name, user_name=user_name)
             self.issues.append(issue_obj)
 
     def get_stalled_epel_package_issues(self):
@@ -108,9 +113,9 @@ class Issues:
         issue_fetcher = Fetcher(keyword="stalled epel package")
         issues_contain_stalled_epel_package_string_in_title = issue_fetcher.containing_keyword()
         for issue in issues_contain_stalled_epel_package_string_in_title:
-            package_name = issue["title"].split(": ")[1]
+            issue_name = issue["title"].lower()  # .split(": ")[1]
             user_name = issue["user"]["name"]
-            issue_obj = Issue(package_name=package_name, user_name=user_name, is_packager=False)
+            issue_obj = Issue(issue_name=issue_name, user_name=user_name)
             self.issues.append(issue_obj)
 
     def analyze_name_issues(self):
@@ -130,7 +135,8 @@ class Issues:
         """ Method writes out info about containing issues """
         print("List of issues:")
         for issue in self.issues:
-            print(f"\tissue name is: {issue.package_name}\n"
+            print(f"\tissue name is: {issue.issue_name}\n"
+                  f"\tpackage name is: {issue.package_name}\n"
                   f"\tuser name is : {issue.user_name}\n"
                   f"\tuser is packager : {issue.is_packager}\n"
                   f"\tlast commit date : {issue.last_commit_date}\n"
@@ -142,9 +148,9 @@ def main():
     issues.get_unretire_issues()
     issues.get_stalled_epel_package_issues()
     issues.write_out_issues()
-    issues.analyze_name_issues()
-    issues.fill_last_commit_date_of_issues()
-    issues.write_out_issues()
+    # issues.analyze_name_issues()
+    # issues.fill_last_commit_date_of_issues()
+    # issues.write_out_issues()
     # TODO make kerberos authentication             ✓
     # TODO analyze package name                     ✓
     # TODO found last commit date                   ✓

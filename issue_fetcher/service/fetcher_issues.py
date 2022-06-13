@@ -1,3 +1,5 @@
+import sys
+
 import requests
 
 from config import DEFAULT_UNTIL_DATE, DEFAULT_SINCE_DATE, DEFAULT_KEYWORD, RELENG_HEADERS, API_RELENG_ISSUES_ENDPOINT
@@ -10,7 +12,7 @@ class Fetcher:
                        "per_page": 100}
         self.date_since = date_since or DEFAULT_SINCE_DATE
         self.date_until = date_until or DEFAULT_UNTIL_DATE
-        self.keyword = keyword or DEFAULT_KEYWORD
+        self.keyword = keyword
 
     def between_dates(self):
         self.params["status"] = "Closed"
@@ -35,19 +37,25 @@ class Fetcher:
 
     def containing_keyword(self):
         # <<<<<<<< 2. Task version
-        self.params["status"] = "Open"
-        print(self.keyword)
-        # >>>>>>>> Old version
-        issues_containing_keyword = []
-        response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
-        pages_count = response.json()["pagination"]["pages"]
-        issues_on_page = response.json()["issues"]
-        issues_containing_keyword += [issue for issue in issues_on_page if self.keyword in issue["title"].lower()]
-        if pages_count >= 2:
-            for page in range(2, pages_count + 1):
-                self.params["page"] = page
-                response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
-                issues_on_page = response.json()["issues"]
-                issues_containing_keyword += [issue for issue in issues_on_page if
-                                              self.keyword in issue["title"].lower()]
-        return issues_containing_keyword
+        if self.is_keyword_none():
+            sys.exit("keyword is none")
+        else:
+            self.params["status"] = "Open"
+            print(self.keyword)
+            # >>>>>>>> Old version
+            issues_containing_keyword = []
+            response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
+            pages_count = response.json()["pagination"]["pages"]
+            issues_on_page = response.json()["issues"]
+            issues_containing_keyword += [issue for issue in issues_on_page if self.keyword in issue["title"].lower()]
+            if pages_count >= 2:
+                for page in range(2, pages_count + 1):
+                    self.params["page"] = page
+                    response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
+                    issues_on_page = response.json()["issues"]
+                    issues_containing_keyword += [issue for issue in issues_on_page if
+                                                  self.keyword in issue["title"].lower()]
+            return issues_containing_keyword
+
+    def is_keyword_none(self):
+        return self.keyword is None
