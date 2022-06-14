@@ -94,7 +94,6 @@ class Issue:
 
     def get_last_commit_date_using_git_clone(self):
         """ Method will fill last_commit_date attr """
-        self.get_git_url()
         if Path("repo/").is_dir():
             shutil.rmtree("repo/")
         local_repo_dir = Path("repo/")
@@ -168,14 +167,14 @@ def main():
     issues.get_stalled_epel_package_issues()
     issues.write_out_issues()
     issues.analyze_name_issues()
-    # issues.fill_last_commit_date_of_issues()
+    issues.fill_last_commit_date_of_issues()
     issues.write_out_issues()
     # TODO make kerberos authentication             ✓
     # TODO analyze package name                     ✓
     # TODO found last commit date                   ✓
     # TODO found packager group at the user group
     # TODO create a test environment
-    # TODO create a good text analyze
+    # TODO create a good text analyze               ✓
 
 
 if __name__ == "__main__":
