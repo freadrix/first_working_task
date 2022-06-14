@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from pathlib import Path
 import shutil
-from test_issues_data import test_issues_data
+from test_issues_data import test_unretire_issues_data, test_stalled_epel_package_issues_data
 from unittest import mock
 import time  # For compare two fetching methods
 
@@ -110,7 +110,9 @@ class Issues:
     def __init__(self):
         self.issues = []
 
-    def get_unretire_issues(self):
+    @mock.patch('issue_fetcher.service.fetcher_issues.Fetcher.containing_keyword',
+                return_value=test_unretire_issues_data)
+    def get_unretire_issues(self, ck):
         """ Method fetch issues that contain the unretire keyword in title """
         issue_fetcher = Fetcher(keyword="unretire")
         issues_contain_unretire_keyword_in_title = issue_fetcher.containing_keyword()
@@ -120,7 +122,9 @@ class Issues:
             issue_obj = Issue(issue_name=issue_name, user_name=user_name)
             self.issues.append(issue_obj)
 
-    def get_stalled_epel_package_issues(self):
+    @mock.patch('issue_fetcher.service.fetcher_issues.Fetcher.containing_keyword',
+                return_value=test_stalled_epel_package_issues_data)
+    def get_stalled_epel_package_issues(self, ck):
         """ Method fetch issues that contain the stalled epel package phrase in title """
         issue_fetcher = Fetcher(keyword="stalled epel package")
         issues_contain_stalled_epel_package_string_in_title = issue_fetcher.containing_keyword()
@@ -165,7 +169,9 @@ class Issues:
 def main():
     issues = Issues()
     issues.get_unretire_issues()
+    print(len(issues.issues))
     issues.get_stalled_epel_package_issues()
+    print(len(issues.issues))
     issues.write_out_issues()
     issues.analyze_name_issues()
     issues.fill_last_commit_date_of_issues()
@@ -174,7 +180,7 @@ def main():
     # TODO analyze package name                     ✓
     # TODO found last commit date                   ✓
     # TODO found packager group at the user group
-    # TODO create a test environment
+    # TODO create a test environment                ✓
     # TODO create a good text analyze               ✓
 
 

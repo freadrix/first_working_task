@@ -1,4 +1,4 @@
-test_issues_data = [
+test_unretire_issues_data = [
     {
         "title": "unretire rpms/abby",
         "user": {
@@ -29,6 +29,9 @@ test_issues_data = [
             "name": "Anton5"
         }
     },
+]
+
+test_stalled_epel_package_issues_data = [
     {
         "title": "stalled epel package: antimicrox",
         "user": {
