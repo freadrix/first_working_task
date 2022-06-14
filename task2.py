@@ -22,39 +22,51 @@ class Issue:
     def package_name_analyze(self):
         """ Method will analyze a package_name write down correct names and return bool value of name correctness """
         self.skip_unnecessary_symbols()
-        # First version
-        # word_list = self.package_name.split()
-        # count_of_words = len(word_list)
-        # if count_of_words == 1:
-        #     if self.package_name.startswith("rpms/"):
-        #         return True
-        #     else:
-        #         self.package_name = f"rpms/{self.package_name}"
-        #         return True
-        # else:
-        #     return False
-        # Second version
-        # package_versions = ["rpms/", "flatpaks/", "modules/"]
-        # package_name_word_list = self.package_name.split()
-        # for word in package_name_word_list:
-        #     if self.package_name.startswith("rpms/"):
-        #         print("True")
-        #     else:
-        #         self.package_name = f"rpms/{self.package_name}"
-        #         print("True")
+        self.get_package_name()
 
     def skip_unnecessary_symbols(self):
         skips = [".", ", ", ":", ";", "'", '"']
         for ch in skips:
             self.issue_name = self.issue_name.replace(ch, "")
 
-    def get_git_url(self):
-        """ Method will fill git_url attr """
-        self.git_url = "https://src.fedoraproject.org/" + self.package_name + ".git"
-        return self.is_package_url_exist()
+    def get_package_name(self):
+        package_prefixes = ("rpms/", "flatpaks/", "modules/", "tests/", "container/")
+        text_with_package_name = self.issue_name.split("unretire ")[1] if "unretire" in self.issue_name \
+            else self.issue_name.split("stalled epel package ")[1]
+        list_of_issue_name_words = text_with_package_name.split(" ")
+        for word in list_of_issue_name_words:
+            if word.startswith(package_prefixes):
+                package_name = word
+                if self.get_git_url(package_name=package_name):
+                    self.package_name = package_name
+                    return True
+            else:
+                package_name = word
+                if self.try_package_name_with_different_prefix(package_name=package_name,
+                                                               package_prefixes=package_prefixes):
+                    return True
+        return False
 
-    def is_package_url_exist(self):
-        response = requests.get(self.git_url)
+    def try_package_name_with_different_prefix(self, package_name, package_prefixes):
+        for prefix in package_prefixes:
+            package_name_with_prefix = prefix + package_name
+            if self.get_git_url(package_name=package_name_with_prefix):
+                self.package_name = package_name_with_prefix
+                return True
+        return False
+
+    def get_git_url(self, package_name):
+        """ Method will fill git_url attr """
+        git_url = "https://src.fedoraproject.org/" + package_name + ".git"
+        if self.is_package_url_exist(git_url):
+            self.git_url = git_url
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def is_package_url_exist(git_url):
+        response = requests.get(git_url)
         if response.status_code == 200:
             return True
         else:
@@ -120,7 +132,13 @@ class Issues:
 
     def analyze_name_issues(self):
         """ Method hard analyze each issue_name of issue in the list """
-        self.issues = [issue for issue in self.issues if issue.package_name_analyze()]
+        # self.issues = [issue for issue in self.issues if issue.package_name is not None]
+        new_issues_list = []
+        for issue in self.issues:
+            issue.package_name_analyze()
+            if issue.package_name is not None:
+                new_issues_list.append(issue)
+        self.issues = new_issues_list
 
     def fill_last_commit_date_of_issues(self):
         """ Method fill last_commit_date attr in all issues """
@@ -137,6 +155,7 @@ class Issues:
         for issue in self.issues:
             print(f"\tissue name is: {issue.issue_name}\n"
                   f"\tpackage name is: {issue.package_name}\n"
+                  f"\tgit_url: {issue.git_url}\n"
                   f"\tuser name is : {issue.user_name}\n"
                   f"\tuser is packager : {issue.is_packager}\n"
                   f"\tlast commit date : {issue.last_commit_date}\n"
@@ -148,9 +167,9 @@ def main():
     issues.get_unretire_issues()
     issues.get_stalled_epel_package_issues()
     issues.write_out_issues()
-    # issues.analyze_name_issues()
+    issues.analyze_name_issues()
     # issues.fill_last_commit_date_of_issues()
-    # issues.write_out_issues()
+    issues.write_out_issues()
     # TODO make kerberos authentication             ✓
     # TODO analyze package name                     ✓
     # TODO found last commit date                   ✓
