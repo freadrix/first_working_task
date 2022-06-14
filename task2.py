@@ -5,6 +5,8 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from pathlib import Path
 import shutil
+from test_issues_data import test_issues_data
+from unittest import mock
 import time  # For compare two fetching methods
 
 
