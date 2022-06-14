@@ -77,7 +77,6 @@ class Issue:
     def get_last_commit_date_using_scraping(self):
         """ Method will fill last_commit_date attr """
         # Getting last commit
-        self.get_git_url()
         g = git.cmd.Git()
         remote_branches_list = g.ls_remote(self.git_url).split("\n")
         head_branch = remote_branches_list[0]

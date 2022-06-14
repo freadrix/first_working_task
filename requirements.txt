@@ -2,3 +2,4 @@ requests
 click==8.1.2
 python-bugzilla
 mock
+bs4

@@ -47,6 +47,8 @@ class Fetcher:
             response = requests.get(url=API_RELENG_ISSUES_ENDPOINT, headers=RELENG_HEADERS, params=self.params)
             pages_count = response.json()["pagination"]["pages"]
             issues_on_page = response.json()["issues"]
+            # print(type(issues_on_page))
+            # print(issues_on_page)
             issues_containing_keyword += [issue for issue in issues_on_page if self.keyword in issue["title"].lower()]
             if pages_count >= 2:
                 for page in range(2, pages_count + 1):
